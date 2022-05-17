@@ -2,7 +2,7 @@
 
 class IpLoggerPlugin extends MantisPlugin {
 
-	const log_table = 'ip_log';
+	const log_table = 'ip_logs';
 
 	/**
 	 * A method that populates the plugin information and minimum requirements.
@@ -56,7 +56,7 @@ class IpLoggerPlugin extends MantisPlugin {
 			array('CreateTableSQL',
 				array(plugin_table(self::log_table), "
 					mantis_user_id    I   NOTNULL  PRIMARY,
-					ip_address        VARCHAR(40)   ",
+					ip_address        C(40)   ",
 					$t_table_options
 				)
 			),
@@ -75,6 +75,9 @@ class IpLoggerPlugin extends MantisPlugin {
 		$ip = $this->ip_address();
 		$id = auth_get_current_user_id();
 		$table = plugin_table(self::log_table);
+		if(!db_table_exists($table)) {
+			return;
+		}
 
 		$query = "INSERT INTO $table(mantis_user_id, ip_address) VALUES(" . db_param() . ',' . db_param() . ')';
 		if(db_is_mysql()) {
@@ -128,6 +131,10 @@ class IpLoggerPlugin extends MantisPlugin {
 
 	function show_ip($event, $user_id) {
 		$table = plugin_table(self::log_table);
+		if(!db_table_exists($table)) {
+			return;
+		}
+
 		$query = "SELECT ip_address from $table where mantis_user_id=" . db_param();
 		$res = db_query($query, array($user_id));
 		$row = db_fetch_array($res);
