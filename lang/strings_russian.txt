@@ -1,0 +1,9 @@
+﻿<?php
+
+$s_plugin_IpLogger_title = 'Логирование IP адресов';
+$s_plugin_IpLogger_description = 'Добавляет возможность логировать IP адреса пользователей.';
+$s_plugin_IpLogger_config_logging_user_threshold_title = 'Уровень доступа пользователя для логирования';
+$s_plugin_IpLogger_config_proxy_ips = 'Список прокси IP адресов';
+$s_plugin_IpLogger_config_title	= 'Настройка логирование IP адресов';
+$s_plugin_IpLogger_ip	= 'Последний IP:';
+$s_plugin_IpLogger_action_update = 'Сохранить';
