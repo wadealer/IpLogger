@@ -41,7 +41,7 @@ class IpLoggerPlugin extends MantisPlugin {
 	 */
 	function hooks() {
 		$t_hooks = array(
-			'EVENT_CORE_READY' => 'log_event',
+			'EVENT_CORE_READY' => 'log_ip',
 			'EVENT_MANAGE_USER_PAGE' => 'show_ip',
 		);
 		return $t_hooks;
@@ -71,23 +71,32 @@ class IpLoggerPlugin extends MantisPlugin {
 		return true;
 	}
 
-	function log_event() {
-		$ip = $this->ip_address();
-		$id = auth_get_current_user_id();
-		$table = plugin_table(self::log_table);
-		if(!db_table_exists($table)) {
-			return;
-		}
+	function log_ip() {
+		try {
+			if(!auth_is_user_authenticated()) {
+				return;
+			}
 
-		$query = "INSERT INTO $table(mantis_user_id, ip_address) VALUES(" . db_param() . ',' . db_param() . ')';
-		if(db_is_mysql()) {
-			$query .= 'ON DUPLICATE KEY UPDATE ip_address = VALUES(ip_address)';
-		}
-		else if(db_is_pgsql()) {
-			$query .= 'ON CONFLICT(mantis_user_id) DO UPDATE  SET ip_address = EXCLUDED.ip_address';
-		}
+			$ip = $this->ip_address();
+			$id = auth_get_current_user_id();
+			$table = plugin_table(self::log_table);
+			if(!db_table_exists($table)) {
+				return;
+			}
 
-		db_query($query, array($id, $ip));
+			$query = "INSERT INTO $table(mantis_user_id, ip_address) VALUES(" . db_param() . ',' . db_param() . ')';
+			if(db_is_mysql()) {
+				$query .= 'ON DUPLICATE KEY UPDATE ip_address = VALUES(ip_address)';
+			}
+			else if(db_is_pgsql()) {
+				$query .= 'ON CONFLICT(mantis_user_id) DO UPDATE  SET ip_address = EXCLUDED.ip_address';
+			}
+
+			db_query($query, array($id, $ip));
+		}
+		catch(\Throwable $t) {
+			log_event(LOG_PLUGIN, $t->getMessage());
+		}
 	}
 
 	function ip_address() {
@@ -140,7 +149,7 @@ class IpLoggerPlugin extends MantisPlugin {
 		$row = db_fetch_array($res);
 		if($row) {
 			$ip = $row['ip_address'];
-			echo '<div><span><strong>' . plugin_lang_get('ip') . "</strong></span>&nbsp;<span>$ip</span></div>";
+			echo '<table class="table-bordered table-condensed table-striped"><tr><td class="category">' . plugin_lang_get('ip') . "</td><td>$ip</td></tr></table>";
 		}
 	}
 }
