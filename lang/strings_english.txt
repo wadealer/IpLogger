@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 $s_plugin_IpLogger_title = 'IP addresses logging';
 $s_plugin_IpLogger_description = 'Adds the ability to log IP addresses of users.';
